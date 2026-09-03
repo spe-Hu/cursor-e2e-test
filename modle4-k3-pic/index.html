@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 编程智能体，助你构建雄心勃勃的软件 | Cursor</title>
+<link rel="icon" href="assets/img/cursor-icon.png">
+<style>
+/* ============================================================
+   Cursor 中文官网 1:1 复刻 —— 设计系统
+   色板 / 字体 / 尺寸全部来自 cursor.com 实测 computed style
+   ============================================================ */
+:root{
+  --bg:#F7F7F4;          /* 页面奶油底色 */
+  --ink:#26251E;         /* 主文字 */
+  --muted:#6E6C63;       /* 次要文字 */
+  --faint:#A3A197;       /* 更弱文字 */
+  --card:#F2F1ED;        /* 卡片底 */
+  --card-2:#ECEBE5;
+  --line:rgba(38,37,30,.16);
+  --line-soft:rgba(38,37,30,.09);
+  --accent:#F54E00;      /* 朱红强调色（实测 rgb(245,78,0)） */
+  --accent-dark:#D84300;
+  --win:#FCFCFA;         /* 窗口底色 */
+  --win-side:#F5F4F0;
+  --code-bg:#ECEBE6;
+  --green:#1D7A3F;
+  --red:#CE3B4B;
+  --gold:#B97E10;
+  --slack-green:#18724C;
+  --radius-xl:20px; --radius-lg:16px; --radius-md:12px; --radius-sm:8px;
+  --sans:"CursorGothic",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"Berkeley Mono",ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --serif:Georgia,"Times New Roman","Songti SC","SimSun",serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink);
+  font:400 16px/1.5 var(--sans);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  padding-top:52px; overflow-x:hidden;
+}
+::selection{background:rgba(245,78,0,.18)}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img{display:block;max-width:100%}
+.container{max-width:1300px;margin:0 auto;padding:0 20px}
+
+/* ---------- 滚动显现动画 ---------- */
+[data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.22,.61,.36,1) var(--d,0s),transform .7s cubic-bezier(.22,.61,.36,1) var(--d,0s)}
+[data-reveal].in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){[data-reveal]{opacity:1;transform:none;transition:none}}
+
+/* ---------- 通用按钮 ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;font-size:16px;line-height:16px;
+  padding:12.5px 21.6px 12.9px;border:1px solid transparent;transition:background .2s ease,transform .2s ease,border-color .2s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-dark{background:var(--ink);color:#F7F7F4;border-color:var(--ink)}
+.btn-dark:hover{background:#3B392F}
+.btn-ghost{background:#E6E5E0;color:var(--ink);border-color:rgba(38,37,30,.03)}
+.btn-ghost:hover{background:#DDDCD5}
+.btn-sm{font-size:14px;padding:8.5px 15px}
+.link-arrow{color:var(--accent);font-size:15px;display:inline-flex;align-items:center;gap:4px;transition:color .2s}
+.link-arrow:hover{color:var(--accent-dark)}
+
+/* ============================================================
+   顶部导航
+   ============================================================ */
+.nav{position:fixed;inset:0 0 auto 0;z-index:100;height:52px;display:flex;align-items:center;
+  padding:0 20px;transition:background .3s,border-color .3s,backdrop-filter .3s;border-bottom:1px solid transparent}
+.nav.scrolled{background:rgba(247,247,244,.85);backdrop-filter:blur(14px);border-bottom-color:var(--line-soft)}
+.nav-inner{width:100%;max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;position:relative}
+.logo{display:flex;align-items:center;gap:7px;font-weight:700;letter-spacing:.06em;font-size:15px}
+.logo svg{width:22px;height:22px}
+.nav-menu{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:4px}
+.nav-item{position:relative}
+.nav-link{display:flex;align-items:center;gap:4px;font-size:14.5px;padding:7px 11px;border-radius:8px;color:var(--ink);transition:background .18s}
+.nav-link:hover{background:rgba(38,37,30,.06)}
+.nav-link .caret{width:9px;height:9px;transition:transform .25s}
+.nav-item:hover .caret,.nav-item:focus-within .caret{transform:rotate(180deg)}
+.dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translate(-50%,6px);min-width:190px;
+  background:var(--win);border:1px solid var(--line-soft);border-radius:var(--radius-md);
+  box-shadow:0 12px 32px -8px rgba(38,37,30,.18),0 2px 8px rgba(38,37,30,.06);padding:6px;
+  opacity:0;visibility:hidden;transition:opacity .22s ease,transform .22s ease,visibility .22s}
+.nav-item:hover .dropdown,.nav-item:focus-within .dropdown{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.dropdown a{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 12px;border-radius:7px;font-size:14px;color:var(--ink);transition:background .15s}
+.dropdown a:hover{background:var(--card)}
+.dropdown a .ext{color:var(--faint);font-size:12px}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.nav-login{font-size:14.5px;padding:7px 10px;border-radius:8px;transition:background .18s}
+.nav-login:hover{background:rgba(38,37,30,.06)}
+.nav-sales{font-size:14.5px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);transition:background .18s,border-color .18s}
+.nav-sales:hover{background:rgba(38,37,30,.05)}
+.nav-download{font-size:14.5px;padding:8px 16px;border-radius:999px;background:var(--ink);color:#F7F7F4;transition:background .18s}
+.nav-download:hover{background:#3B392F}
+.hamburger{display:none;width:34px;height:34px;border-radius:8px;align-items:center;justify-content:center}
+.hamburger:hover{background:rgba(38,37,30,.06)}
+.mobile-menu{position:fixed;inset:52px 0 0 0;background:var(--bg);z-index:99;padding:24px;display:none;flex-direction:column;gap:4px;overflow:auto}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-size:20px;padding:12px 8px;border-bottom:1px solid var(--line-soft)}
+
+/* ============================================================
+   首屏 HERO
+   ============================================================ */
+.hero{padding:118px 0 0}
+.hero h1{font-size:26px;line-height:1.25;letter-spacing:-.0125em;font-weight:400;max-width:620px}
+.hero-cta{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap}
+.stage{position:relative;margin-top:46px;border-radius:var(--radius-xl);overflow:hidden;
+  height:clamp(540px,58vw,800px);box-shadow:inset 0 0 0 1px var(--line-soft);isolation:isolate}
+.stage .painting{position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;z-index:-1;will-change:transform}
+
+/* —— 通用窗口 —— */
+.win{position:absolute;background:var(--win);border-radius:var(--radius-md);
+  box-shadow:0 24px 60px -12px rgba(31,29,22,.28),0 4px 14px rgba(31,29,22,.12),0 0 0 1px rgba(38,37,30,.08);
+  overflow:hidden;will-change:transform;font-size:13px}
+.win-bar{height:40px;display:flex;align-items:center;justify-content:center;position:relative;
+  border-bottom:1px solid var(--line-soft);color:var(--muted);font-size:12.5px;background:var(--win)}
+.win-bar .tl{position:absolute;left:12px;top:50%;transform:translateY(-50%);display:flex;gap:7px}
+.tl i{width:11px;height:11px;border-radius:50%;background:#E0DFD9;border:1px solid rgba(38,37,30,.06)}
+
+/* —— 首屏桌面窗口 —— */
+.win-desktop{left:8%;top:7.5%;width:66%;height:78%;display:grid;
+  grid-template-rows:40px 1fr;grid-template-columns:206px 1fr 1.04fr}
+.win-desktop .win-bar{grid-column:1/4}
+.desk-side{background:var(--win-side);border-right:1px solid var(--line-soft);padding:12px 10px;overflow:hidden}
+.desk-side h5{font-size:12px;font-weight:500;color:var(--muted);padding:0 6px 8px}
+.task{display:flex;gap:8px;padding:9px 8px;border-radius:8px;transition:background .2s;cursor:pointer;align-items:flex-start}
+.task:hover{background:rgba(38,37,30,.05)}
+.task.active{background:#EFEEE9}
+.task .ic{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--green);color:var(--green);flex:none;margin-top:2px;display:grid;place-items:center;font-size:9px}
+.task .tt{font-size:12.5px;font-weight:500;line-height:1.35}
+.task .tt em{font-style:normal;color:var(--faint);font-weight:400;float:right;font-size:11px;margin-left:6px}
+.task .sub{font-size:11px;color:var(--muted);line-height:1.4;margin-top:2px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.task .sub b{font-weight:400}
+.diff-g{color:var(--green)} .diff-r{color:var(--red)}
+.desk-chat{border-right:1px solid var(--line-soft);padding:14px 14px 0;display:flex;flex-direction:column;min-width:0}
+.chat-title{font-size:13px;font-weight:600;padding-bottom:10px}
+.user-msg{background:var(--win-side);border:1px solid var(--line-soft);border-radius:10px;padding:9px 11px;font-size:12.5px;line-height:1.45}
+.agent-line{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;padding:7px 2px}
+.agent-line .dot{width:5px;height:5px;border-radius:50%;background:#C8C6BC;flex:none}
+.agent-line .file-ic{color:var(--faint);font-family:var(--mono);font-size:11px}
+.agent-text{font-size:12.5px;line-height:1.55;padding:6px 2px}
+.file-chip{display:inline-flex;align-items:center;gap:8px;background:var(--win-side);border:1px solid var(--line-soft);
+  border-radius:8px;padding:6px 10px;font-family:var(--mono);font-size:11.5px;margin:4px 6px 4px 0;transition:border-color .2s}
+.file-chip:hover{border-color:var(--line)}
+.file-chip .doc{color:var(--faint)}
+.chat-input{margin-top:auto;border:1px solid var(--line-soft);border-radius:12px 12px 0 0;padding:10px 12px;display:flex;align-items:center;gap:8px;background:var(--win);min-height:52px}
+.pill-chip{display:inline-flex;align-items:center;gap:5px;background:var(--win-side);border:1px solid var(--line-soft);border-radius:7px;padding:4px 8px;font-size:11.5px;color:var(--muted);white-space:nowrap;cursor:pointer;transition:background .2s}
+.pill-chip:hover{background:#EFEEE9}
+.pill-chip .inf{color:var(--faint)}
+.up-btn{margin-left:auto;width:24px;height:24px;border-radius:7px;background:var(--card-2);display:grid;place-items:center;color:var(--muted);flex:none}
+.desk-preview{position:relative;background:#fff;min-width:0;display:flex;flex-direction:column}
+.browser-bar{height:38px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:10px;padding:0 12px;color:var(--faint);font-size:12px}
+.browser-bar .url{background:var(--win-side);border-radius:7px;padding:4px 10px;font-family:var(--mono);font-size:11px;color:var(--muted);flex:1;text-align:center}
+.preview-body{padding:26px 30px;overflow:hidden;position:relative;font-size:13px;line-height:1.7;color:#3A382F}
+.preview-body .brand{font-family:var(--serif);font-style:italic;font-size:17px;margin-bottom:14px}
+.mark{position:relative;background:rgba(245,78,0,.14);border-radius:2px;padding:0 1px}
+.mark-pop{position:absolute;left:0;top:-24px;background:var(--ink);color:#F7F7F4;font-size:10px;font-family:var(--mono);
+  padding:2px 7px;border-radius:5px;white-space:nowrap;animation:pop .3s ease}
+@keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.txt-sel{background:#D9E4F5;border-radius:2px;padding:0 1px}
+.model-opt.sel{background:rgba(247,247,244,.07)}
+.see-proj{margin-top:18px;border:1px solid var(--line);border-radius:8px;padding:6px 14px;font-size:12px;display:inline-block}
+.year-list{margin-top:16px;font-size:12.5px;color:#3A382F}
+.year-list .yr{display:flex;gap:18px;padding:7px 0;border-bottom:1px solid rgba(38,37,30,.05)}
+.year-list .yr span:first-child{color:var(--faint);width:44px;flex:none}
+
+/* —— 首屏 CLI 窗口 —— */
+.win-cli{left:auto;right:3.6%;top:44%;width:36.5%;height:52%;display:grid;grid-template-rows:40px 1fr}
+.cli-body{padding:12px 14px;overflow:hidden;font-size:12px;line-height:1.5}
+.cli-chip{display:inline-flex;align-items:center;gap:8px;background:var(--win-side);border:1px solid var(--line-soft);
+  border-radius:8px;padding:6px 10px;font-family:var(--mono);font-size:11px;margin-bottom:10px}
+.cli-chip .doc{color:var(--faint)}
+.cli-ol{padding-left:2px;color:#3A382F}
+.cli-ol li{margin:3px 0 3px 16px}
+.cli-ol li::marker{color:var(--faint)}
+.cli-kw{color:var(--accent);font-weight:600}
+.cli-input{margin:10px 0 2px;border-top:1px solid var(--line-soft);padding-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--ink);min-height:20px}
+.cli-input .cur{display:inline-block;width:7px;height:13px;background:var(--ink);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.cli-q{color:#3A382F;font-size:12px;margin-top:8px}
+
+/* ============================================================
+   LOGO 墙
+   ============================================================ */
+.trust{padding:104px 0 8px;text-align:center}
+.trust h2{font-size:14px;font-weight:400;letter-spacing:.01em;color:var(--ink);margin-bottom:34px}
+.logo-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:14px}
+.logo-cell{background:var(--win);border:1px solid var(--line-soft);border-radius:var(--radius-sm);
+  height:100px;display:grid;place-items:center;color:var(--ink);transition:transform .25s ease,box-shadow .25s ease,border-color .25s}
+.logo-cell:hover{transform:translateY(-3px);box-shadow:0 10px 24px -10px rgba(38,37,30,.18);border-color:var(--line)}
+.logo-cell svg{height:22px;width:auto;max-width:82%}
+
+/* ============================================================
+   特性区块（油画卡片 + 文案）
+   ============================================================ */
+.feature{display:grid;grid-template-columns:.72fr 1.55fr;gap:56px;align-items:end;padding:118px 0 0}
+.feature.flip{grid-template-columns:1.55fr .72fr}
+.feature.flip .feature-copy{order:2}
+.feature-copy{padding-bottom:8px}
+.feature-copy h2{font-size:26px;line-height:1.25;letter-spacing:-.0125em;font-weight:400;margin-bottom:12px}
+.feature-copy p{color:var(--muted);font-size:15.5px;line-height:1.6;margin-bottom:16px;max-width:330px}
+.art-card{position:relative;border-radius:var(--radius-xl);overflow:hidden;box-shadow:inset 0 0 0 1px var(--line-soft);isolation:isolate}
+.art-card .painting{position:absolute;inset:-6% 0; width:100%;height:112%;object-fit:cover;z-index:0;will-change:transform}
+.art-card .inner{position:relative;z-index:1}
+/* 特性1：编辑器窗口 */
+.f1-card{height:660px}
+.f1-card .inner{padding:52px 60px 0}
+.win-editor{position:relative;left:auto;right:auto;top:auto;width:100%;height:560px;display:grid;
+  grid-template-rows:40px 1fr;grid-template-columns:1.02fr 1.3fr;box-shadow:0 30px 70px -18px rgba(31,29,22,.35),0 6px 18px rgba(31,29,22,.14),0 0 0 1px rgba(38,37,30,.08)}
+.win-editor .win-bar{grid-column:1/3}
+.doc-panel{background:#fff;padding:16px 20px;overflow:hidden;min-width:0}
+.doc-tabs{display:flex;gap:2px;margin:-16px -20px 14px;border-bottom:1px solid var(--line-soft);padding:0 12px;background:var(--win)}
+.doc-tab{font-family:var(--mono);font-size:11.5px;padding:9px 12px;color:var(--muted);border-bottom:2px solid transparent;display:flex;gap:7px;align-items:center;transition:color .2s}
+.doc-tab.active{color:var(--ink);border-bottom-color:var(--ink)}
+.doc-tab .x{color:var(--faint);font-size:10px}
+.doc-crumb{font-family:var(--mono);font-size:11px;color:var(--faint);margin-bottom:12px}
+.doc-crumb b{color:var(--muted);font-weight:400}
+.doc-panel h3{font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:10px}
+.doc-panel p{font-size:12.5px;line-height:1.65;color:#3A382F;margin-bottom:14px}
+.doc-panel h4{font-size:13px;font-weight:700;margin:14px 0 6px}
+.task-box{border:1px solid var(--line-soft);border-radius:10px;padding:12px 14px;margin-top:16px}
+.task-box h6{font-size:11px;color:var(--faint);font-weight:500;margin-bottom:8px}
+.task-box .tline{display:flex;gap:8px;align-items:center;font-size:12px;padding:4.5px 0;color:#3A382F}
+.task-box .tline .cb{width:13px;height:13px;border:1.5px solid #C9C7BD;border-radius:50%;flex:none}
+.task-box .tline.done{color:var(--faint)}
+.task-box .tline.done .cb{background:var(--green);border-color:var(--green)}
+.q-card{border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;margin-top:12px}
+.q-head{display:flex;align-items:center;justify-content:space-between;background:var(--win-side);padding:7px 12px;font-size:11px;color:var(--muted)}
+.q-head b{color:#B8860B;background:#F7EDD8;border-radius:5px;padding:2px 8px;font-weight:500}
+.q-body{padding:10px 14px}
+.q-body .q{font-size:12.5px;font-weight:600;margin-bottom:8px}
+.q-opt{display:flex;gap:8px;font-size:12px;color:#3A382F;padding:5px 0;align-items:baseline}
+.q-opt .n{color:var(--faint);font-family:var(--mono);font-size:11px}
+.q-foot{display:flex;justify-content:flex-end;gap:8px;padding:8px 12px;border-top:1px solid var(--line-soft)}
+.q-foot .skip{font-size:12px;color:var(--muted);padding:5px 12px;border-radius:7px}
+.q-foot .skip:hover{background:var(--card)}
+.q-foot .go{font-size:12px;background:var(--gold);color:#fff;padding:5px 12px;border-radius:7px;font-weight:500}
+/* 特性2：云端智能体（灰蓝底，无油画） */
+.f2-card{height:640px;background:
+  radial-gradient(120% 90% at 50% 0%,#C6C9CE 0%,#B4B7BD 55%,#A9ACB2 100%)}
+.f2-card .inner{padding:56px 64px 0;height:100%}
+.win-browser{position:relative;left:auto;right:auto;top:auto;width:100%;height:100%;
+  box-shadow:0 30px 70px -18px rgba(31,29,22,.35),0 6px 18px rgba(31,29,22,.14),0 0 0 1px rgba(38,37,30,.1);
+  display:grid;grid-template-rows:38px 1fr}
+.win-browser .urlrow{display:flex;align-items:center;gap:10px;padding:0 14px;border-bottom:1px solid var(--line-soft);background:var(--win)}
+.win-browser .urlrow .url{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--win-side);padding:4px 14px;border-radius:7px;min-width:200px;text-align:center}
+.cloud-body{display:grid;grid-template-columns:212px 1fr;min-height:0}
+.cloud-side{background:var(--win-side);border-right:1px solid var(--line-soft);padding:14px 10px}
+.cloud-side .brand{display:flex;align-items:center;gap:7px;padding:2px 8px 12px;font-weight:600;font-size:13px}
+.cloud-side .brand svg{width:16px;height:16px}
+.cloud-side h6{font-size:11px;color:var(--faint);font-weight:500;padding:8px 8px 5px}
+.cloud-task{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:7px 8px;border-radius:7px;color:#3A382F;cursor:pointer;transition:background .2s}
+.cloud-task:hover{background:rgba(38,37,30,.05)}
+.cloud-task.active{background:#EAE9E3;font-weight:500}
+.cloud-task .st{width:13px;height:13px;flex:none;color:var(--muted)}
+.cloud-main{padding:16px 20px;overflow:hidden;font-size:12.5px;min-width:0;background:#fff}
+.cloud-main h4{font-size:14px;margin-bottom:10px}
+.cloud-reply{color:#3A382F;line-height:1.6;margin:10px 0}
+.cloud-meta{color:var(--faint);font-size:11.5px;line-height:1.7}
+.cloud-meta .ok{color:var(--green)}
+.shot{border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;margin:12px 0;background:
+  linear-gradient(135deg,#D8CBB4 0%,#B9AE97 45%,#8F9A87 100%);padding:14px}
+.shot .mini{background:#fff;border-radius:7px;box-shadow:0 8px 20px rgba(31,29,22,.25);padding:10px;display:grid;grid-template-columns:70px 1fr;gap:10px}
+.shot .mini .sb{background:var(--win-side);border-radius:5px;min-height:86px}
+.shot .mini .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.shot .mini .cell{background:var(--win-side);border-radius:5px;position:relative;overflow:hidden;min-height:40px}
+.shot .mini .cell::after{content:"";position:absolute;left:8px;right:30%;top:9px;height:5px;border-radius:3px;background:#DDDCD5}
+.shot .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;
+  background:rgba(252,252,250,.92);display:grid;place-items:center;box-shadow:0 6px 16px rgba(31,29,22,.3);transition:transform .2s}
+.shot:hover .play{transform:translate(-50%,-50%) scale(1.08)}
+.cloud-sum{font-size:12px;color:#3A382F;line-height:1.65}
+.cloud-sum b{display:block;font-size:12.5px;margin:10px 0 4px}
+/* 特性3：Slack + Agent */
+.f3-card{height:640px}
+.f3-card .inner{padding:48px 56px;height:100%;position:relative}
+.win-slack{position:absolute;left:8%;top:7%;width:56%;height:62%;display:grid;grid-template-rows:40px 1fr}
+.slack-body{padding:0;overflow:hidden;background:#fff}
+.slack-head{padding:12px 16px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between}
+.slack-head .ch{font-size:14px;font-weight:700}
+.slack-head .mem{font-size:11px;color:var(--muted);margin-top:1px}
+.avatars{display:flex}
+.avatars img{width:22px;height:22px;border-radius:6px;border:2px solid #fff;margin-left:-7px;object-fit:cover}
+.slack-msgs{padding:12px 16px}
+.smsg{display:flex;gap:10px;margin-bottom:14px}
+.smsg img{width:32px;height:32px;border-radius:8px;flex:none;object-fit:cover}
+.smsg .who{font-size:12.5px}
+.smsg .who b{font-weight:700}
+.smsg .who span{color:var(--faint);font-size:11px;margin-left:6px}
+.smsg .txt{font-size:12.5px;color:#3A382F;line-height:1.5;margin-top:2px}
+.smsg .at{color:#1264A3;background:#E8F2FA;border-radius:4px;padding:0 4px;font-size:11.5px}
+.slack-btn{display:inline-block;background:var(--slack-green);color:#fff;font-size:11.5px;font-weight:600;
+  padding:6px 12px;border-radius:7px;margin-top:8px;transition:filter .2s}
+.slack-btn:hover{filter:brightness(1.1)}
+.win-agent{position:absolute;right:4%;bottom:6%;width:60%;height:66%;display:grid;grid-template-rows:40px 1fr}
+.agent-body{padding:12px 14px;overflow:hidden;background:#fff;font-size:12px}
+.agent-q{border:1px solid var(--line-soft);border-radius:9px;padding:9px 12px;margin-bottom:12px}
+.agent-q h6{font-size:10.5px;color:var(--faint);font-weight:500;margin-bottom:4px}
+.agent-q .qq{font-size:12.5px;font-weight:600;margin-bottom:6px}
+.agent-q .opt{font-family:var(--mono);font-size:11.5px;color:#3A382F;padding:2px 0}
+.agent-step{display:flex;gap:8px;align-items:baseline;padding:5px 0;color:#3A382F}
+.agent-step .bl{color:var(--ink);font-weight:700}
+.agent-step .tm{color:var(--faint);font-size:11px}
+.agent-sub{display:flex;gap:8px;align-items:center;padding:4px 0 4px 22px;color:var(--muted);font-size:11.5px}
+.agent-sub .ring{width:11px;height:11px;border:1.5px solid #C9C7BD;border-radius:50%;flex:none}
+.agent-sub .mv{color:var(--faint)}
+.agent-input{margin-top:12px;border:1px solid var(--line-soft);border-radius:9px;padding:8px 12px;color:var(--faint);font-size:12px;display:flex;gap:8px;align-items:center}
+.agent-cloud{display:flex;gap:7px;align-items:center;color:#7A5AF8;font-size:11.5px;margin-top:10px}
+.agent-foot{margin-top:8px;padding-top:8px;border-top:1px solid var(--line-soft);font-size:11px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap}
+.agent-foot .k{color:var(--faint)}
+/* 特性4：自动化 */
+.f4-card{height:660px}
+.f4-card .inner{padding:0;height:100%;display:grid;place-items:center}
+.win-auto{position:relative;left:auto;right:auto;top:auto;width:min(520px,72%);display:grid;grid-template-rows:40px 1fr;
+  box-shadow:0 30px 70px -18px rgba(31,29,22,.4),0 6px 18px rgba(31,29,22,.16),0 0 0 1px rgba(38,37,30,.08)}
+.auto-body{padding:16px;background:#fff;overflow:hidden}
+.auto-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.auto-row .pill-chip b{color:var(--ink);font-weight:500}
+.auto-add{display:flex;align-items:center;gap:8px;border:1px solid var(--line-soft);border-radius:9px;padding:9px 12px;font-size:12.5px;color:var(--muted);margin-bottom:16px;transition:border-color .2s;cursor:pointer}
+.auto-add:hover{border-color:var(--line)}
+.auto-sec{font-size:11.5px;color:var(--muted);margin:14px 0 7px}
+.auto-prompt{border:1px solid var(--line-soft);border-radius:10px;padding:12px 13px;font-size:12.5px;line-height:1.6;color:#3A382F;min-height:92px}
+.auto-prompt .cmd{color:#B8860B;background:#FAF3E3;border-radius:4px;padding:0 4px;font-family:var(--mono);font-size:11.5px}
+.auto-prompt .cur{display:inline-block;width:7px;height:13px;background:var(--ink);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+.auto-tool{display:flex;align-items:center;gap:9px;border:1px solid var(--line-soft);border-radius:9px;padding:10px 12px;font-size:12.5px;margin-bottom:8px;transition:border-color .2s;cursor:pointer}
+.auto-tool:hover{border-color:var(--line)}
+.auto-tool .slk{width:15px;height:15px;flex:none}
+.auto-tool.add{color:var(--muted)}
+/* 特性左侧 curl 命令条 */
+.curl-chip{display:inline-flex;align-items:center;gap:12px;background:var(--win-side);border:1px solid var(--line-soft);
+  border-radius:9px;padding:10px 8px 10px 14px;font-family:var(--mono);font-size:12.5px;color:var(--ink);margin-top:18px}
+.copy-btn{width:26px;height:26px;border-radius:7px;background:var(--ink);color:#F7F7F4;display:grid;place-items:center;transition:background .2s,transform .15s;flex:none}
+.copy-btn:hover{background:#3B392F}
+.copy-btn:active{transform:scale(.9)}
+.copy-btn.ok{background:var(--green)}
+
+/* ============================================================
+   证言区
+   ============================================================ */
+.quotes{padding:150px 0 0;text-align:center}
+.quotes h2{font-size:26px;font-weight:400;letter-spacing:-.0125em;margin-bottom:56px}
+.quote-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;text-align:left}
+.quote-card{background:var(--card);border-radius:var(--radius-md);padding:28px 28px 24px;display:flex;flex-direction:column;
+  transition:transform .3s ease,box-shadow .3s ease}
+.quote-card:hover{transform:translateY(-4px);box-shadow:0 16px 34px -16px rgba(38,37,30,.22)}
+.quote-card blockquote{font-size:15.5px;line-height:1.62;letter-spacing:-.005em;flex:1}
+.quote-who{display:flex;align-items:center;gap:12px;margin-top:26px}
+.quote-who img{width:38px;height:38px;border-radius:50%;object-fit:cover}
+.quote-who .nm{font-size:14px;font-weight:600}
+.quote-who .rl{font-size:13px;color:var(--muted)}
+
+/* ============================================================
+   始终保持前沿 —— 三列
+   ============================================================ */
+.frontier{padding:150px 0 0}
+.frontier>h2,.frontier .f-head{font-size:26px;font-weight:400;letter-spacing:-.0125em;margin-bottom:44px}
+.f-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.f-col h3{font-size:15.5px;font-weight:600;margin-bottom:8px}
+.f-col p{font-size:14.5px;color:var(--muted);line-height:1.6;margin-bottom:14px;min-height:46px}
+.f-col .visual{margin-top:22px;border-radius:var(--radius-lg);overflow:hidden;box-shadow:inset 0 0 0 1px var(--line-soft)}
+/* 模型下拉卡（深色） */
+.model-card{background:#201F1A;border-radius:var(--radius-lg);padding:34px 26px;color:#EDEBE3;height:100%}
+.model-input{background:#2C2B25;border:1px solid rgba(247,247,244,.1);border-radius:12px;padding:11px 14px}
+.model-input .ph{color:#8B887C;font-size:12.5px;margin-bottom:10px}
+.model-row{display:flex;align-items:center;gap:8px}
+.model-pill{display:inline-flex;align-items:center;gap:5px;background:#3A382F;border:1px solid rgba(247,247,244,.1);
+  border-radius:7px;padding:4px 8px;font-size:11.5px;color:#C9C6BA;cursor:pointer;transition:background .2s}
+.model-pill:hover{background:#454337}
+.model-pill .inf{color:#8B887C}
+.model-send{margin-left:auto;width:22px;height:22px;border-radius:50%;background:#EDEBE3;color:#201F1A;display:grid;place-items:center;font-size:11px}
+.model-list{position:relative;background:#2C2B25;border:1px solid rgba(247,247,244,.1);border-radius:12px;margin-top:10px;
+  padding:5px;transform-origin:top center;transition:opacity .25s ease,transform .25s ease}
+.model-list.closed{opacity:0;transform:scaleY(.6) translateY(-8px);pointer-events:none;position:absolute;left:26px;right:26px}
+.model-opt{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer;transition:background .15s}
+.model-opt:hover{background:rgba(247,247,244,.07)}
+.model-opt .check{margin-left:auto;color:#EDEBE3;opacity:0;font-size:11px}
+.model-opt.sel .check{opacity:1}
+.model-opt .tag{font-size:10px;color:#8B887C;border:1px solid rgba(247,247,244,.14);border-radius:4px;padding:0 4px}
+/* 手机 */
+.phone-card{background:var(--card);padding:34px 34px 0;display:grid;place-items:end center}
+.phone{width:min(250px,88%);background:#fff;border:7px solid #1C1B16;border-bottom:none;border-radius:38px 38px 0 0;
+  padding:12px 14px 26px;box-shadow:0 -10px 30px -12px rgba(38,37,30,.2)}
+.phone .notch{width:74px;height:19px;background:#1C1B16;border-radius:12px;margin:0 auto 14px}
+.phone h4{font-size:15px;font-weight:700;margin-bottom:10px}
+.phone .rc{font-size:11px;color:var(--faint);margin-bottom:6px}
+.m-task{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid rgba(38,37,30,.06);font-size:12px}
+.m-task:last-child{border-bottom:none}
+.m-task .sp{color:#7A5AF8;font-size:12px;flex:none}
+.m-task .nm{font-weight:500;line-height:1.35}
+.m-task .st{color:var(--faint);font-size:10.5px;margin-top:2px}
+/* 企业照片 */
+.ent-card{height:100%;min-height:340px}
+.ent-card img{width:100%;height:100%;object-fit:cover;transition:transform .8s ease}
+.ent-card:hover img{transform:scale(1.03)}
+
+/* ============================================================
+   招聘 / CTA / 页脚
+   ============================================================ */
+.careers{margin-top:150px;background:var(--card);border-radius:var(--radius-xl);overflow:hidden;
+  display:grid;grid-template-columns:1fr 1.35fr;min-height:420px}
+.careers .txt{padding:52px;display:flex;flex-direction:column;justify-content:flex-end;gap:16px}
+.careers h2{font-size:26px;line-height:1.3;letter-spacing:-.0125em;font-weight:400;max-width:380px}
+.careers .pic{position:relative;overflow:hidden}
+.careers .pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s ease}
+.careers:hover .pic img{transform:scale(1.03)}
+.cta{padding:150px 0 160px;text-align:center}
+.cta h2{font-size:26px;font-weight:400;letter-spacing:-.0125em;margin-bottom:30px}
+.cta .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.footer{background:var(--card);border-top:1px solid var(--line-soft)}
+.foot-grid{display:grid;grid-template-columns:1.2fr repeat(5,1fr);gap:24px;padding:64px 0 54px}
+.foot-brand svg{width:24px;height:24px}
+.foot-col h5{font-size:13px;font-weight:600;margin-bottom:14px}
+.foot-col a{display:block;font-size:13.5px;color:var(--muted);padding:4.5px 0;transition:color .15s}
+.foot-col a:hover{color:var(--ink)}
+.foot-col a .ext{font-size:11px;color:var(--faint)}
+.foot-bottom{border-top:1px solid var(--line-soft);padding:20px 0 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot-bottom .lft{display:flex;align-items:center;gap:14px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.cert{display:flex;gap:5px;align-items:center}
+.cert span{font-size:10px;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--muted)}
+.lang-btn{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);border:1px solid var(--line);
+  border-radius:8px;padding:7px 12px;transition:background .2s;position:relative}
+.lang-btn:hover{background:rgba(38,37,30,.04)}
+.lang-panel{position:absolute;bottom:calc(100% + 8px);right:0;background:var(--win);border:1px solid var(--line-soft);
+  border-radius:var(--radius-md);box-shadow:0 12px 32px -8px rgba(38,37,30,.18);padding:6px;min-width:150px;
+  opacity:0;visibility:hidden;transform:translateY(6px);transition:all .22s ease;z-index:50}
+.lang-panel.open{opacity:1;visibility:visible;transform:none}
+.lang-panel button{display:flex;width:100%;justify-content:space-between;gap:14px;padding:7px 11px;border-radius:7px;font-size:13px;color:var(--ink);transition:background .15s;text-align:left}
+.lang-panel button:hover{background:var(--card)}
+.lang-panel button .ck{color:var(--accent);opacity:0}
+.lang-panel button.on .ck{opacity:1}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+@media (max-width:1080px){
+  .feature,.feature.flip{grid-template-columns:1fr;gap:26px;align-items:start}
+  .feature.flip .feature-copy{order:0}
+  .feature-copy p{max-width:520px}
+  .logo-grid{grid-template-columns:repeat(4,1fr)}
+  .quote-grid,.f-grid{grid-template-columns:1fr;gap:20px}
+  .f-col p{min-height:0}
+  .careers{grid-template-columns:1fr}
+  .careers .pic{min-height:280px}
+  .foot-grid{grid-template-columns:repeat(3,1fr);row-gap:36px}
+  .foot-brand{grid-column:1/-1}
+}
+@media (max-width:760px){
+  .nav-menu,.nav-login,.nav-sales{display:none}
+  .hamburger{display:flex}
+  .hero{padding-top:84px}
+  .stage{height:auto;overflow:visible;box-shadow:none;border-radius:0}
+  .stage .painting{display:none}
+  .win{position:relative;left:auto;right:auto;top:auto;width:100%;height:auto;min-height:0;margin-bottom:16px;border-radius:12px}
+  .win-desktop{grid-template-columns:1fr;grid-template-rows:40px auto auto auto}
+  .win-desktop .win-bar{grid-column:1/2}
+  .desk-side{display:none}
+  .desk-preview{max-height:300px}
+  .win-cli{height:auto}
+  .f1-card,.f2-card,.f3-card,.f4-card{height:auto}
+  .f1-card .inner,.f2-card .inner,.f3-card .inner{padding:20px 14px}
+  .win-editor{grid-template-columns:1fr;height:auto;grid-template-rows:40px auto auto}
+  .win-editor .win-bar{grid-column:1/2}
+  .doc-panel{max-height:420px}
+  .f3-card .inner{position:static;display:flex;flex-direction:column;gap:16px}
+  .win-slack,.win-agent{position:relative;left:auto;right:auto;top:auto;bottom:auto;width:100%;height:auto}
+  .cloud-body{grid-template-columns:1fr}
+  .cloud-side{display:none}
+  .win-auto{width:100%}
+  .logo-grid{grid-template-columns:repeat(2,1fr)}
+  .foot-grid{grid-template-columns:repeat(2,1fr)}
+  .trust{padding-top:72px}
+  .quotes,.frontier{padding-top:96px}
+  .careers{margin-top:96px}
+  .cta{padding:96px 0 110px}
+}
+</style>
+</head>
+<body>
+<!-- ================= 导航 ================= -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="logo" href="#" aria-label="Cursor">
+      <svg viewBox="0 0 24 24" fill="#26251E" stroke="#F7F7F4" stroke-width=".9" stroke-linejoin="round"><path d="M12 2.4 20.6 7.2 12 12 3.4 7.2Z"/><path d="M3.4 7.2 12 12v9.6L3.4 16.8Z"/><path d="M20.6 7.2 12 12v9.6l8.6-4.8Z"/></svg>
+      CURSOR
+    </a>
+    <nav class="nav-menu">
+      <div class="nav-item">
+        <button class="nav-link">模型 <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></button>
+        <div class="dropdown">
+          <a href="#">Grok</a><a href="#">评估</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button class="nav-link">产品 <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></button>
+        <div class="dropdown">
+          <a href="#">智能体</a><a href="#">云端</a><a href="#">Grok Bot <span class="ext">↗</span></a>
+          <a href="#">移动端</a><a href="#">自动化</a><a href="#">CLI</a>
+          <a href="#">应用市场 <span class="ext">↗</span></a><a href="#">代码审查</a>
+        </div>
+      </div>
+      <div class="nav-item"><a class="nav-link" href="#">企业</a></div>
+      <div class="nav-item"><a class="nav-link" href="#">定价</a></div>
+      <div class="nav-item">
+        <button class="nav-link">资源 <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></button>
+        <div class="dropdown">
+          <a href="#">更新日志</a><a href="#">Blog</a><a href="#">文档</a><a href="#">社区</a>
+          <a href="#">帮助 <span class="ext">↗</span></a><a href="#">工作坊</a>
+          <a href="#">论坛 <span class="ext">↗</span></a><a href="#">招聘</a>
+        </div>
+      </div>
+    </nav>
+    <div class="nav-actions">
+      <a class="nav-login" href="#">登录</a>
+      <a class="nav-sales" href="#">联系销售</a>
+      <a class="nav-download" href="#">下载</a>
+      <button class="hamburger" id="hamburger" aria-label="菜单">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path d="M2.5 5h13M2.5 9h13M2.5 13h13" stroke="#26251E" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#">模型</a><a href="#">产品</a><a href="#">企业</a><a href="#">定价</a><a href="#">资源</a>
+  <a href="#">登录</a><a href="#">联系销售</a><a href="#">下载</a>
+</div>
+
+<!-- ================= 首屏 ================= -->
+<section class="hero container">
+  <h1 data-reveal>Cursor 是您的编程智能体，助您构建雄心勃勃的软件。</h1>
+  <div class="hero-cta" data-reveal style="--d:.08s">
+    <a class="btn btn-dark" href="#">下载 macOS 版本
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v7.2M6 8.2 2.8 5M6 8.2 9.2 5M1.5 10.5h9" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a class="btn btn-ghost" href="#">申请演示
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6h8M6.5 2.5 10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+
+  <div class="stage" id="heroStage" data-reveal style="--d:.15s">
+    <img class="painting" src="assets/img/painting-hero.png" alt="古典风景油画：群山与湖泊">
+    <!-- 桌面端窗口 -->
+    <div class="win win-desktop" data-depth="6">
+      <div class="win-bar"><span class="tl"><i></i><i></i><i></i></span>Cursor Desktop</div>
+      <aside class="desk-side">
+        <h5>待审查 5</h5>
+        <div class="task active">
+          <span class="ic">✓</span>
+          <div><div class="tt">构建落地页 <em>now</em></div><div class="sub">完成。字体会在 head 中预加载…</div></div>
+        </div>
+        <div class="task">
+          <span class="ic">✓</span>
+          <div><div class="tt">规划 Mission Control <em>now</em></div><div class="sub"><b class="diff-g">+20</b> <b class="diff-r">-3</b> · 已在 feature-prd.md…</div></div>
+        </div>
+        <div class="task">
+          <span class="ic">✓</span>
+          <div><div class="tt">PyTorch MNIST 实验 <em>10m</em></div><div class="sub">PyTorch MNIST 实验</div></div>
+        </div>
+        <div class="task">
+          <span class="ic">✓</span>
+          <div><div class="tt">为仪表盘设置 Cursor 规则 <em>30m</em></div><div class="sub">为仪表盘设置 Cursor 规则</div></div>
+        </div>
+        <div class="task">
+          <span class="ic">✓</span>
+          <div><div class="tt">生物信息学工具 <em>45m</em></div><div class="sub"><b class="diff-g">+135</b> <b class="diff-r">-21</b> · 生物信息学工具</div></div>
+        </div>
+      </aside>
+      <div class="desk-chat">
+        <div class="chat-title">构建落地页</div>
+        <div class="user-msg">根据附加文档制作一个介绍我们业务的落地页</div>
+        <div class="agent-line"><span class="dot"></span>读取 <span class="file-ic">≡ about-acme.md</span></div>
+        <div class="agent-line"><span class="dot"></span>读取 <span class="file-ic">≡ brand-guidelines.pdf</span></div>
+        <div class="agent-line"><span class="dot"></span>思考 6 秒</div>
+        <p class="agent-text">我会创建一个极简、以衬线字体为主的落地页，契合你的品牌调性。</p>
+        <div>
+          <span class="file-chip"><span class="doc">≡</span> app/page.tsx <b class="diff-g">+52</b> <b class="diff-r">-0</b></span>
+          <span class="file-chip"><span class="doc">≡</span> app/globals.css <b class="diff-g">+18</b> <b class="diff-r">-0</b></span>
+        </div>
+        <p class="agent-text">完成。字体会在 head 中预加载，关键 CSS 已内联，我还添加了 color-scheme meta 标签，这样深色模式就能立即渲染而不会闪烁。首次绘制时间为 280ms。</p>
+        <div class="chat-input">
+          <span class="pill-chip"><span class="inf">∞</span> Agent ⌄</span>
+          <span class="pill-chip">Grok 4.6 ⌄</span>
+          <span class="up-btn"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 10.5v-8M2.5 5 6 1.5 9.5 5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+      </div>
+      <div class="desk-preview">
+        <div class="browser-bar">
+          <span>‹</span><span>›</span><span>⟳</span>
+          <span class="url">http://localhost:3000</span>
+          <span style="border:1px solid var(--line-soft);border-radius:5px;padding:2px 5px;font-size:9px">▢</span>
+        </div>
+        <div class="preview-body">
+          <div class="brand">Acme Labs</div>
+          <p>Software creation is changing. We are a group of researchers, engineers, and technologists inventing at the edge of what's
+            <span class="mark">useful and possible.<span class="mark-pop">Tagline · span</span></span></p>
+          <p class="txt-sel">We have much to learn, try, and build.</p>
+          <span class="see-proj">See projects</span>
+          <div class="year-list">
+            <div class="yr"><span>2026</span><span>Secure codebase indexing</span></div>
+            <div class="yr"><span>2026</span><span>Semantic search</span></div>
+            <div class="yr"><span>2025</span><span>Reinforcement learning</span></div>
+            <div class="yr"><span>2024</span><span>Shadow workspaces</span></div>
+            <div class="yr"><span>2024</span><span>Multi-agent collaboration</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- CLI 窗口 -->
+    <div class="win win-cli" data-depth="14">
+      <div class="win-bar"><span class="tl"><i></i><i></i><i></i></span>Cursor CLI</div>
+      <div class="cli-body">
+        <span class="cli-chip"><span class="doc">≡</span> bio/translate.py <b>+def</b> <b class="diff-g">+3</b> <b class="diff-r">-1</b></span>
+        <p style="color:#3A382F;margin-bottom:6px">太棒了！我已经添加了：</p>
+        <ol class="cli-ol">
+          <li><span class="cli-kw">Gotoh 算法</span>，使用正确的仿射 gap 罚分（gap open：-10，extend：-1）</li>
+          <li>修复后的 <span class="cli-kw">FASTA 解析器</span>，可处理多行序列并清理空白字符和数字</li>
+          <li><span class="cli-kw">ORF 查找器</span>，可在全部三个阅读框中搜索起始/终止密码子</li>
+          <li><span class="cli-kw">反向互补函数</span>，用于同时搜索两条链</li>
+        </ol>
+        <p class="cli-q">要我创建一个快速测试，确认一切都能正常工作吗？</p>
+        <div class="cli-input"><span id="cliTyped"></span><span class="cur"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LOGO 墙 ================= -->
+<section class="trust container" data-reveal>
+  <h2>每天都深受构建世界级软件的团队信赖</h2>
+  <div class="logo-grid">
+    <div class="logo-cell"><svg viewBox="0 0 60 24"><text x="2" y="18" font-family="var(--sans)" font-size="19" font-weight="700" fill="#26251E" letter-spacing="-.5">stripe</text></svg></div>
+    <div class="logo-cell"><svg viewBox="0 0 110 24"><path d="M9 7c-2.2 0-4 1.8-4 4s1.8 4 4 4c.9 0 1.7-.3 2.4-.8L13 16h4v-3.2l1.5 1.2c.6.4 1.4.4 2-.1s.7-1.4.2-2L14 4.5 13 4H9v3z" fill="#26251E"/><text x="24" y="17" font-size="13" font-weight="700" fill="#26251E" letter-spacing="1">DATADOG</text></svg></div>
+    <div class="logo-cell"><svg viewBox="0 0 90 24"><circle cx="11" cy="12" r="8" fill="#26251E"/><path d="M11 4a8 8 0 0 1 8 8H11z" fill="#F7F7F4" opacity=".9"/><text x="26" y="17" font-size="15" font-weight="600" fill="#26251E">Linear</text></svg></div>
+    <div class="logo-cell"><svg viewBox="0 0 105 24"><path d="M4 7.5C6.5 5 10 4 13 4.2c4.8.3 8.6 3 10.5 7.3-1.9 4.4-5.7 7.2-10.5 7.5C9.5 19.2 6 17.5 4 15h3.2c1.4 1.2 3.4 2 5.8 1.9 3.4-.2 6-2 7.5-5.4-1.5-3.3-4.1-5-7.5-5.2-2.4-.1-4.4.5-5.8 1.7z" fill="#26251E"/><text x="27" y="17" font-size="13" font-weight="700" fill="#26251E" letter-spacing="1.5">NVIDIA</text></svg></div>
+    <div class="logo-cell"><svg viewBox="0 0 80 24"><text x="2" y="17" font-size="16" font-weight="600" fill="#26251E">Figma</text></svg></div>
+    <div class="logo-cell"><svg viewBox="0 0 80 24"><text x="2" y="17" font-size="16" font-weight="700" fill="#26251E" letter-spacing="-.5">ramp</text><path d="M52 13c4-1 8-4 10-8M58 4l4 1 1 4" stroke="#26251E" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="logo-cell"><svg viewBox="0 0 115 24"><path d="M6 8.5 11 5l5 3.5v7L11 19l-5-3.5z" fill="none" stroke="#26251E" stroke-width="2.4" stroke-linejoin="round"/><text x="24" y="16.5" font-size="12" font-weight="700" fill="#26251E" letter-spacing="1.2">DECAGON</text></svg></div>
+    <div class="logo-cell"><svg viewBox="0 0 80 24"><text x="2" y="17" font-size="16" font-weight="700" fill="#26251E">Adobe</text></svg></div>
+  </div>
+</section>
+
+<!-- ================= 特性 1：智能体 ================= -->
+<section class="feature container">
+  <div class="feature-copy" data-reveal>
+    <h2>让智能体把创意变成代码</h2>
+    <p>把任务交给 Cursor，加快开发速度，而您则专注于决策。</p>
+    <a class="link-arrow" href="#">了解智能体驱动的开发 →</a>
+  </div>
+  <div class="art-card f1-card" data-reveal style="--d:.1s">
+    <img class="painting" src="assets/img/painting-lake.jpg" alt="古典风景油画：湖泊与远山" data-parallax>
+    <div class="inner">
+      <div class="win win-editor">
+        <div class="win-bar"><span class="tl"><i></i><i></i><i></i></span>Cursor</div>
+        <div class="desk-chat" style="border-right:1px solid var(--line-soft)">
+          <div class="chat-title">规划 Mission Control</div>
+          <div class="user-msg">让我们构建一个 Mission Control 界面，类似 macOS 中 Exposé 风格的窗口管理器</div>
+          <div class="agent-line"><span class="dot"></span>思考 4 秒</div>
+          <div class="agent-line"><span class="dot"></span>读取 <span class="file-ic">≡ AppManager.tsx</span></div>
+          <div class="agent-line"><span class="dot"></span>已搜索 <span class="file-ic">Exposé 模式</span></div>
+          <div><span class="file-chip"><span class="doc">≡</span> feature-prd.md <b class="diff-g">+68</b></span></div>
+          <p class="agent-text">已在 feature-prd.md 中草拟实现步骤。在我开始构建前，有几个简短问题：</p>
+          <div class="q-card">
+            <div class="q-head"><span>疑问</span><span>‹ ›</span></div>
+            <div class="q-body">
+              <div class="q">How should Mission Control be triggered?</div>
+              <div class="q-opt"><span class="n">1</span>Gesture (swipe up with 3 fingers)</div>
+              <div class="q-opt"><span class="n">2</span>Keyboard shortcut (e.g., F3 or Cmd+F3)</div>
+              <div class="q-opt"><span class="n">3</span>Both keyboard and button</div>
+            </div>
+            <div class="q-foot"><button class="skip">跳过</button><button class="go">继续</button></div>
+          </div>
+          <div class="chat-input">
+            <span style="color:var(--faint);font-size:12px">添加后续消息…</span>
+            <span class="up-btn"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 10.5v-8M2.5 5 6 1.5 9.5 5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div style="display:flex;gap:6px;padding:8px 2px 10px">
+            <span class="pill-chip"><span class="inf">☷</span> Plan ⌄</span>
+            <span class="pill-chip">Grok 4.6 ⌄</span>
+          </div>
+        </div>
+        <div class="doc-panel">
+          <div class="doc-tabs">
+            <span class="doc-tab active">feature-prd.md <span class="x">✕</span></span>
+            <span class="doc-tab">presence.ts</span>
+          </div>
+          <div class="doc-crumb">Plans › <b>feature-prd.md</b> <span style="float:right">Gr</span></div>
+          <h3>Mission Control Interface</h3>
+          <p>A grid view of all open windows as scaled previews, allowing quick selection to bring any window to front.</p>
+          <h4>Trigger</h4>
+          <p>Menu item in MenuBar.tsx (View › Mission Control), hotkey F3, or double-tap desktop.</p>
+          <h4>View Behavior</h4>
+          <p>Overlay existing windows into a grid of live previews with spring-based layout animations and shared element transitions.</p>
+          <div class="task-box">
+            <h6>3 Tasks</h6>
+            <div class="tline"><span class="cb"></span>Create a new MissionControlView.tsx component</div>
+            <div class="tline"><span class="cb"></span>Update AppManager.tsx to apply expose modes.</div>
+            <div class="tline done"><span class="cb"></span>Add a task, ⌘K to generate…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 特性 2：云端智能体 ================= -->
+<section class="feature flip container">
+  <div class="feature-copy" data-reveal>
+    <h2>自主工作，并行运行</h2>
+    <p>智能体使用各自的计算机端到端完成功能构建、测试和演示，供您审查。</p>
+    <a class="link-arrow" href="#">了解云端智能体 →</a>
+  </div>
+  <div class="art-card f2-card" data-reveal style="--d:.1s">
+    <div class="inner">
+      <div class="win win-browser">
+        <div class="urlrow">
+          <span style="color:var(--faint)">⛭</span>
+          <span class="url">cursor.com/agent</span>
+          <span style="color:var(--faint)">⟳</span>
+        </div>
+        <div class="cloud-body">
+          <aside class="cloud-side">
+            <div class="brand"><svg viewBox="0 0 24 24" fill="#26251E" stroke="#F7F7F4" stroke-width=".9" stroke-linejoin="round"><path d="M12 2.4 20.6 7.2 12 12 3.4 7.2Z"/><path d="M3.4 7.2 12 12v9.6L3.4 16.8Z"/><path d="M20.6 7.2 12 12v9.6l8.6-4.8Z"/></svg></div>
+            <h6>This Week</h6>
+            <div class="cloud-task active"><svg class="st" viewBox="0 0 14 14"><circle cx="7" cy="7" r="3" fill="currentColor"/></svg>Acme Research Dashboard</div>
+            <div class="cloud-task"><svg class="st" viewBox="0 0 14 14"><path d="M4 11 7 3l3 8" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>Live Telemetry Pipeline</div>
+            <div class="cloud-task"><svg class="st" viewBox="0 0 14 14"><path d="M3 7h8M7 3v8" stroke="currentColor" stroke-width="1.5"/></svg>Zero-Downtime Deploys</div>
+            <h6>This Month</h6>
+            <div class="cloud-task"><svg class="st" viewBox="0 0 14 14"><rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>Binary Protocol Parser</div>
+            <div class="cloud-task"><svg class="st" viewBox="0 0 14 14"><circle cx="7" cy="7" r="4" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>Edge Cache Invalidation</div>
+            <div class="cloud-task"><svg class="st" viewBox="0 0 14 14"><path d="M3 10 7 4l4 6z" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>Auth Token Rotation</div>
+          </aside>
+          <div class="cloud-main">
+            <h4>Acme Research Dashboard</h4>
+            <div class="user-msg">let's build a dashboard to make our research findings interactive</div>
+            <p class="cloud-meta">Explored 12 files, 4 searches</p>
+            <p class="cloud-reply">On it. I'll build the dashboard using your theme config, wire up the research data, and add interactive charts with public access controls.</p>
+            <p class="cloud-meta">Worked for 14m 22s<br>Processed screen recording<br><span class="ok">Done! Here's a walkthrough of the dashboard.</span></p>
+            <div class="shot">
+              <div class="mini">
+                <div class="sb"></div>
+                <div class="grid"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+              </div>
+              <span class="play"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M3.5 2.2v7.6c0 .6.65.95 1.14.63l6-3.8a.74.74 0 0 0 0-1.26l-6-3.8a.74.74 0 0 0-1.14.63Z" fill="#26251E"/></svg></span>
+            </div>
+            <div class="cloud-sum"><b>Summary</b>Built the interactive dashboard with realtime charts, data from Snowflake, and shadcn components. Deployed to staging via Vercel.</div>
+            <div class="chat-input" style="border-radius:12px;margin-top:12px">
+              <span class="pill-chip"><span class="inf">∞</span> Agent ⌄</span>
+              <span class="pill-chip">Opus 5 ⌄</span>
+              <span class="up-btn"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 10.5v-8M2.5 5 6 1.5 9.5 5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ================= 特性 3：覆盖所有工具 ================= -->
+<section class="feature container">
+  <div class="feature-copy" data-reveal>
+    <h2>覆盖所有工具，贯穿每一步</h2>
+    <p>Cursor 可在您的终端中运行、在 Slack 中协作，并在 GitHub 中审查 PR。</p>
+    <div class="curl-chip">
+      <span id="curlCmd">curl https://cursor.com/install -fsS | bash</span>
+      <button class="copy-btn" id="copyBtn" aria-label="复制安装命令">
+        <svg class="ic-copy" width="11" height="11" viewBox="0 0 12 12"><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" fill="none" stroke-width="1.2"/><path d="M8 4V2.5A1.5 1.5 0 0 0 6.5 1H2.5A1.5 1.5 0 0 0 1 2.5v4A1.5 1.5 0 0 0 2.5 8H4" stroke="currentColor" fill="none" stroke-width="1.2"/></svg>
+        <svg class="ic-check" width="11" height="11" viewBox="0 0 12 12" style="display:none"><path d="M2 6.5 4.8 9 10 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="art-card f3-card" data-reveal style="--d:.1s">
+    <img class="painting" src="assets/img/painting-coast.jpg" alt="古典风景油画：海岸" data-parallax>
+    <div class="inner">
+      <div class="win win-slack">
+        <div class="win-bar"><span class="tl"><i></i><i></i><i></i></span>Slack</div>
+        <div class="slack-body">
+          <div class="slack-head">
+            <div><div class="ch">#feature-realtime-sync</div><div class="mem">8 位成员</div></div>
+            <div class="avatars">
+              <img src="assets/img/member-1.png" alt="成员头像"><img src="assets/img/member-2.jpg" alt="成员头像"><img src="assets/img/member-3.jpg" alt="成员头像"><img src="assets/img/member-4.png" alt="成员头像">
+            </div>
+          </div>
+          <div class="slack-msgs">
+            <div class="smsg">
+              <img src="assets/img/member-1.png" alt="swhitmore 头像">
+              <div><div class="who"><b>swhitmore</b><span>5m</span></div>
+              <div class="txt">我希望能直接跳转到 cursor.com/changelog#1.0 来查看 1.0 的更新日志</div></div>
+            </div>
+            <div class="smsg">
+              <img src="assets/img/member-2.jpg" alt="eric 头像">
+              <div><div class="who"><b>eric</b><span>4m</span></div>
+              <div class="txt">没问题</div></div>
+            </div>
+            <div class="smsg">
+              <img src="assets/img/cursor-icon.png" alt="Cursor 图标">
+              <div><div class="who"><b>Cursor</b> <span class="at">APP</span><span>3m</span></div>
+              <div class="txt"><span class="at">@cursor</span> 已创建 PR：为更新日志条目添加锚点链接，以提高可发现性。</div>
+              <a class="slack-btn" href="#" onclick="return false">查看 PR</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="win win-agent">
+        <div class="win-bar"><span class="tl"><i></i><i></i><i></i></span>cursor-agent</div>
+        <div class="agent-body">
+          <div class="agent-q">
+            <h6>Question</h6>
+            <div class="qq">What data should the mission control display?</div>
+            <div class="opt">[x] Real-time metrics</div>
+            <div class="opt">[ ] System status</div>
+          </div>
+          <div class="agent-step"><span class="bl">●</span>Analyzed scope <span class="tm">2s</span></div>
+          <div class="agent-step"><span class="bl">●</span>Started 3 agents</div>
+          <div class="agent-sub"><span class="ring"></span>Health <span class="mv">· Moving to cloud</span></div>
+          <div class="agent-sub"><span class="ring"></span>Deployments <span class="mv">· Moving to cloud</span></div>
+          <div class="agent-sub"><span class="ring"></span>Incidents <span class="mv">· Moving to cloud</span></div>
+          <div class="agent-input">
+            <svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 1l1.2 3.2L10.5 5 7.8 6.6 8.6 10 6 8.2 3.4 10l.8-3.4L1.5 5l3.3-.8z" fill="#B9B7AD"/></svg>
+            Ask, plan, build anything
+          </div>
+          <div class="agent-cloud">
+            <svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 1l1.2 3.2L10.5 5 7.8 6.6 8.6 10 6 8.2 3.4 10l.8-3.4L1.5 5l3.3-.8z" fill="currentColor"/></svg>
+            Move to cloud agent
+          </div>
+          <div class="agent-foot">
+            <span>GPT-5.6 Sol Extra High Fast · 8% · 5 files edited</span>
+            <span class="k">/ commands · @ files · ! shell</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 特性 4：自动化 ================= -->
+<section class="feature flip container">
+  <div class="feature-copy" data-reveal>
+    <h2>自动处理重复性工作</h2>
+    <p>设置始终在线的智能体，让它们按计划或触发条件运行，帮助构建、维护和修复你的软件。</p>
+    <a class="link-arrow" href="#">了解自动化 →</a>
+  </div>
+  <div class="art-card f4-card" data-reveal style="--d:.1s">
+    <img class="painting" src="assets/img/painting-valley.jpg" alt="古典风景油画：金色山谷" data-parallax>
+    <div class="inner">
+      <div class="win win-auto">
+        <div class="win-bar"><span class="tl"><i></i><i></i><i></i></span>Cursor</div>
+        <div class="auto-body">
+          <div class="auto-row">in <span class="pill-chip"><b>cursor-website</b> ⌄</span> on <span class="pill-chip"><b>main</b> ⌄</span></div>
+          <div class="auto-add"><span style="font-size:14px">＋</span> Add trigger</div>
+          <div class="auto-sec">Agent Instructions</div>
+          <div class="auto-prompt">Your task is to fix CI failures on main. Avoid racing other agents. Root cause by checking logs. Report with <span class="cmd">/apply-report-format</span> <span class="cur"></span></div>
+          <div style="margin-top:8px"><span class="pill-chip">Grok 4.6 ⌄</span></div>
+          <div class="auto-sec">Tools</div>
+          <div class="auto-tool">
+            <svg class="slk" viewBox="0 0 16 16"><path d="M3.5 9.5a1.5 1.5 0 1 1-1.5-1.5h1.5zM4.2 9.5v4a1.5 1.5 0 1 0 1.5-1.5H4.2z" fill="#E01E5A"/><path d="M6.5 3.5a1.5 1.5 0 1 1 1.5-1.5v1.5zM6.5 4.2h4a1.5 1.5 0 1 0-1.5 1.5V4.2z" fill="#36C5F0"/><path d="M12.5 6.5a1.5 1.5 0 1 1 1.5 1.5h-1.5zM11.8 6.5v-4a1.5 1.5 0 1 0-1.5 1.5h1.5z" fill="#2EB67D"/><path d="M9.5 12.5a1.5 1.5 0 1 1-1.5 1.5v-1.5zM9.5 11.8h-4a1.5 1.5 0 1 0 1.5-1.5v1.5z" fill="#ECB22E"/></svg>
+            Send to Slack
+          </div>
+          <div class="auto-tool add"><span style="font-size:14px">＋</span> Add Tool or MCP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 证言 ================= -->
+<section class="quotes container">
+  <h2 data-reveal>构建软件的全新方式。</h2>
+  <div class="quote-grid">
+    <div class="quote-card" data-reveal>
+      <blockquote>“团队从试用到全面采用只用了一个季度。现在工程师们每天都在用 Cursor，代码产出效率的提升肉眼可见。”</blockquote>
+      <div class="quote-who"><img src="assets/img/avatar-diana.png" alt="Diana Hu"><div><div class="nm">Diana Hu</div><div class="rl">General Partner, Y Combinator</div></div></div>
+    </div>
+    <div class="quote-card" data-reveal style="--d:.08s">
+      <blockquote>“我最喜欢的企业 AI 产品是 Cursor。我们约四万名工程师都在 AI 辅助下工作，生产力得到了惊人的提升。”</blockquote>
+      <div class="quote-who"><img src="assets/img/avatar-jensen.png" alt="Jensen Huang"><div><div class="nm">Jensen Huang</div><div class="rl">President &amp; CEO, NVIDIA</div></div></div>
+    </div>
+    <div class="quote-card" data-reveal style="--d:.16s">
+      <blockquote>“好的 LLM 应用应该有一根‘自主性滑杆’：在 Cursor 里，你既可以用 Cmd+K 做精细编辑，也可以切换到全自主的智能体模式。”</blockquote>
+      <div class="quote-who"><img src="assets/img/avatar-andrej.png" alt="Andrej Karpathy"><div><div class="nm">Andrej Karpathy</div><div class="rl">CEO, Eureka Labs</div></div></div>
+    </div>
+    <div class="quote-card" data-reveal>
+      <blockquote>“Cursor 在 Stripe 内部从几百名热情用户迅速扩展到数千名。让研发流程更高效，带来了显著的经济效益。”</blockquote>
+      <div class="quote-who"><img src="assets/img/avatar-patrick.png" alt="Patrick Collison"><div><div class="nm">Patrick Collison</div><div class="rl">Co-Founder &amp; CEO, Stripe</div></div></div>
+    </div>
+    <div class="quote-card" data-reveal style="--d:.08s">
+      <blockquote>“Cursor 是我目前持续付费使用的最实用的 AI 工具。自动补全总能出现在需要的位置，括号、快捷键、自带模型，整体打磨得非常到位。”</blockquote>
+      <div class="quote-who"><img src="assets/img/avatar-shadcn.png" alt="shadcn"><div><div class="nm">shadcn</div><div class="rl">Creator of shadcn/ui</div></div></div>
+    </div>
+    <div class="quote-card" data-reveal style="--d:.16s">
+      <blockquote>“编程这件事正变得越来越有趣。我们现在只看到了可能性的 1%，而 Cursor 这样的交互体验正是前沿模型大放异彩的地方。”</blockquote>
+      <div class="quote-who"><img src="assets/img/avatar-greg.jpg" alt="Greg Brockman"><div><div class="nm">Greg Brockman</div><div class="rl">President, OpenAI</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 始终保持前沿 ================= -->
+<section class="frontier container">
+  <h2 data-reveal>始终保持前沿</h2>
+  <div class="f-grid">
+    <div class="f-col" data-reveal>
+      <h3>为每项任务使用最佳模型</h3>
+      <p>可在 OpenAI、Anthropic、Gemini、SpaceXAI 和 Cursor 的所有尖端模型中进行选择。</p>
+      <a class="link-arrow" href="#">了解模型 ↗</a>
+      <div class="visual">
+        <div class="model-card">
+          <div class="model-input">
+            <div class="ph">让 Cursor 为您规划或构建一切</div>
+            <div class="model-row">
+              <span class="model-pill"><span class="inf">∞</span> 智能体 ⌄</span>
+              <button class="model-pill" id="modelToggle"><span id="modelName">Grok 4.6</span> ⌄</button>
+              <span class="model-send">↑</span>
+            </div>
+          </div>
+          <div class="model-list" id="modelList">
+            <div class="model-opt" data-m="Auto">Auto <span class="tag">建议</span><span class="check">✓</span></div>
+            <div class="model-opt sel" data-m="Grok 4.6">Grok 4.6<span class="check">✓</span></div>
+            <div class="model-opt" data-m="GPT-5.6 Sol">GPT-5.6 Sol<span class="check">✓</span></div>
+            <div class="model-opt" data-m="Fable 5">Fable 5 <span class="tag">Max</span><span class="check">✓</span></div>
+            <div class="model-opt" data-m="Opus 5">Opus 5<span class="check">✓</span></div>
+            <div class="model-opt" data-m="Gemini 3.1 Pro">Gemini 3.1 Pro<span class="check">✓</span></div>
+            <div class="model-opt" data-m="Composer 2.5">Composer 2.5<span class="check">✓</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="f-col" data-reveal style="--d:.08s">
+      <h3>用自主智能体构建</h3>
+      <p>启动一整队智能体，并行处理高难度任务，持续数小时甚至数天。</p>
+      <a class="link-arrow" href="#">了解云端智能体 →</a>
+      <div class="visual">
+        <div class="phone-card">
+          <div class="phone">
+            <div class="notch"></div>
+            <h4>All Repos</h4>
+            <div class="rc">Recents</div>
+            <div class="m-task"><span class="sp">✦</span><div><div class="nm">Fix sign-in redirect on iOS</div><div class="st">Working · cursor/mobile</div></div></div>
+            <div class="m-task"><span class="sp">✦</span><div><div class="nm">Add rate limits to public routes</div><div class="st">Working · cursor/api</div></div></div>
+            <div class="m-task"><span class="sp">✦</span><div><div class="nm">Cache repository search results</div><div class="st">Working · cursor/web</div></div></div>
+            <div class="m-task"><span class="sp">✦</span><div><div class="nm">Investigate flaky CI shard</div><div class="st">Working · cursor/infra</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="f-col" data-reveal style="--d:.16s">
+      <h3>打造经久不衰的软件</h3>
+      <p>深受超过半数《财富》500 强企业信赖，以安全且可规模化的方式加速开发。</p>
+      <a class="link-arrow" href="#">探索企业版 →</a>
+      <div class="visual">
+        <div class="ent-card"><img src="assets/img/terminal-room.jpg" alt="布满绿色代码屏幕的办公空间"></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ================= 招聘 ================= -->
+<section class="container">
+  <div class="careers" data-reveal>
+    <div class="txt">
+      <h2>Cursor 是一支致力于构建软件开发未来的应用研究团队。</h2>
+      <div><a class="link-arrow" href="#">加入我们 →</a></div>
+    </div>
+    <div class="pic"><img src="assets/img/careers-team.jpg" alt="Cursor 团队在白板前讨论"></div>
+  </div>
+</section>
+
+<!-- ================= 结尾 CTA ================= -->
+<section class="cta container" data-reveal>
+  <h2>立即试用 Cursor。</h2>
+  <div class="row">
+    <a class="btn btn-dark" href="#">下载 macOS 版本
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v7.2M6 8.2 2.8 5M6 8.2 9.2 5M1.5 10.5h9" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a class="btn btn-ghost" href="#">Get started
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6h8M6.5 2.5 10 6l-3.5 3.5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ================= 页脚 ================= -->
+<footer class="footer">
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <svg viewBox="0 0 24 24" fill="#26251E" stroke="#F7F7F4" stroke-width=".9" stroke-linejoin="round"><path d="M12 2.4 20.6 7.2 12 12 3.4 7.2Z"/><path d="M3.4 7.2 12 12v9.6L3.4 16.8Z"/><path d="M20.6 7.2 12 12v9.6l8.6-4.8Z"/></svg>
+      </div>
+      <div class="foot-col">
+        <h5>产品</h5>
+        <a href="#">智能体</a><a href="#">团队版</a><a href="#">企业</a><a href="#">定价</a>
+        <a href="#">代码审查</a><a href="#">CLI</a><a href="#">云端智能体</a><a href="#">Composer</a>
+        <a href="#">应用市场 <span class="ext">↗</span></a>
+      </div>
+      <div class="foot-col">
+        <h5>资源</h5>
+        <a href="#">下载</a><a href="#">更新日志</a><a href="#">文档</a><a href="#">Learn <span class="ext">↗</span></a>
+        <a href="#">价值计算器</a><a href="#">论坛 <span class="ext">↗</span></a><a href="#">帮助 <span class="ext">↗</span></a>
+        <a href="#">工作坊</a><a href="#">Status <span class="ext">↗</span></a>
+      </div>
+      <div class="foot-col">
+        <h5>公司</h5>
+        <a href="#">招聘</a><a href="#">Blog</a><a href="#">社区</a><a href="#">学生</a>
+        <a href="#">品牌</a><a href="#">未来</a><a href="#">Anysphere <span class="ext">↗</span></a>
+      </div>
+      <div class="foot-col">
+        <h5>法律</h5>
+        <a href="#">服务条款</a><a href="#">可接受使用政策</a><a href="#">隐私政策</a>
+        <a href="#">数据使用</a><a href="#">安全</a>
+      </div>
+      <div class="foot-col">
+        <h5>连接</h5>
+        <a href="#">X <span class="ext">↗</span></a><a href="#">LinkedIn <span class="ext">↗</span></a><a href="#">YouTube <span class="ext">↗</span></a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div class="lft">
+        <span>© 2026 Anysphere, Inc.</span>
+        <span class="cert"><span>SOC 2</span><span>ISO27001</span><span>ISO42001</span><span>AIUC-1</span> Certified</span>
+      </div>
+      <button class="lang-btn" id="langBtn">
+        <svg width="13" height="13" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" stroke="currentColor" fill="none"/><path d="M1.5 7h11M7 1.5c1.8 1.6 2.7 3.4 2.7 5.5S8.8 10.9 7 12.5C5.2 10.9 4.3 9.1 4.3 7S5.2 3.1 7 1.5Z" stroke="currentColor" fill="none"/></svg>
+        <span id="langName">简体中文</span>
+        <svg width="9" height="9" viewBox="0 0 10 10"><path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <div class="lang-panel" id="langPanel" style="position:fixed;display:none"></div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   交互脚本
+   1. 导航滚动态  2. 滚动显现  3. 油画视差  4. 首屏窗口鼠标视差
+   5. 复制命令    6. 模型下拉    7. 语言切换  8. CLI 打字机  9. 移动端菜单
+   ============================================================ */
+(function(){
+  "use strict";
+
+  /* 1) 导航滚动态 */
+  var nav = document.getElementById('nav');
+  function onNav(){ nav.classList.toggle('scrolled', window.scrollY > 8); }
+  window.addEventListener('scroll', onNav, {passive:true}); onNav();
+
+  /* 2) 滚动显现（IntersectionObserver） */
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:.12, rootMargin:'0px 0px -6% 0px'});
+  document.querySelectorAll('[data-reveal]').forEach(function(el){ io.observe(el); });
+
+  /* 3) 油画视差：滚动时油画轻微上下移动 */
+  var parallaxEls = [].slice.call(document.querySelectorAll('[data-parallax]'));
+  var heroPainting = document.querySelector('.stage .painting');
+  function onParallax(){
+    var vh = window.innerHeight;
+    parallaxEls.forEach(function(el){
+      var r = el.parentElement.getBoundingClientRect();
+      if(r.bottom < 0 || r.top > vh) return;
+      var p = (r.top + r.height/2 - vh/2) / vh;   // -0.5 ~ 0.5
+      el.style.transform = 'translateY(' + (p * -36) + 'px)';
+    });
+    if (heroPainting){
+      var r2 = heroPainting.parentElement.getBoundingClientRect();
+      if(r2.bottom > 0 && r2.top < vh){
+        var p2 = (r2.top + r2.height/2 - vh/2) / vh;
+        heroPainting.style.transform = 'translateY(' + (p2 * -44) + 'px) scale(1.02)';
+      }
+    }
+  }
+  window.addEventListener('scroll', onParallax, {passive:true}); onParallax();
+
+  /* 4) 首屏窗口鼠标视差（不同深度的反向位移 + 轻微倾斜） */
+  var stage = document.getElementById('heroStage');
+  if (stage && matchMedia('(pointer:fine)').matches){
+    var layers = [].slice.call(stage.querySelectorAll('[data-depth]'));
+    var tx=0, ty=0, cx=0, cy=0, raf=null;
+    function loop(){
+      cx += (tx-cx)*.08; cy += (ty-cy)*.08;
+      layers.forEach(function(el){
+        var d = parseFloat(el.dataset.depth);
+        el.style.transform = 'translate3d(' + (-cx*d) + 'px,' + (-cy*d*.6) + 'px,0) rotateX(' + (cy*1.2) + 'deg) rotateY(' + (-cx*1.2) + 'deg)';
+      });
+      raf = (Math.abs(tx-cx)>.001 || Math.abs(ty-cy)>.001) ? requestAnimationFrame(loop) : null;
+    }
+    stage.addEventListener('mousemove', function(e){
+      var r = stage.getBoundingClientRect();
+      tx = (e.clientX - r.left)/r.width - .5;
+      ty = (e.clientY - r.top)/r.height - .5;
+      if(!raf) raf = requestAnimationFrame(loop);
+    });
+    stage.addEventListener('mouseleave', function(){
+      tx = 0; ty = 0; if(!raf) raf = requestAnimationFrame(loop);
+    });
+  }
+
+  /* 5) 复制安装命令 */
+  var copyBtn = document.getElementById('copyBtn');
+  if (copyBtn){
+    copyBtn.addEventListener('click', function(){
+      var text = document.getElementById('curlCmd').textContent.trim();
+      var done = function(){
+        copyBtn.classList.add('ok');
+        copyBtn.querySelector('.ic-copy').style.display = 'none';
+        copyBtn.querySelector('.ic-check').style.display = 'block';
+        setTimeout(function(){
+          copyBtn.classList.remove('ok');
+          copyBtn.querySelector('.ic-copy').style.display = 'block';
+          copyBtn.querySelector('.ic-check').style.display = 'none';
+        }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done).catch(done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); }catch(e){}
+        document.body.removeChild(ta); done();
+      }
+    });
+  }
+
+  /* 6) 模型下拉（点击切换选中模型） */
+  var modelToggle = document.getElementById('modelToggle');
+  var modelList = document.getElementById('modelList');
+  var modelName = document.getElementById('modelName');
+  if (modelToggle && modelList){
+    modelToggle.addEventListener('click', function(e){
+      e.stopPropagation();
+      modelList.classList.toggle('closed');
+    });
+    modelList.querySelectorAll('.model-opt').forEach(function(opt){
+      opt.addEventListener('click', function(e){
+        e.stopPropagation();
+        modelList.querySelectorAll('.model-opt').forEach(function(o){ o.classList.remove('sel'); });
+        opt.classList.add('sel');
+        modelName.textContent = opt.dataset.m;
+        modelList.classList.add('closed');
+      });
+    });
+    document.addEventListener('click', function(){ modelList.classList.add('closed'); });
+  }
+
+  /* 7) 页脚语言切换 */
+  var langs = ['English','简体中文','日本語','繁體中文','Español','Français','Português','한국어','Deutsch','हिन्दी'];
+  var langBtn = document.getElementById('langBtn');
+  var langPanel = document.getElementById('langPanel');
+  var langName = document.getElementById('langName');
+  if (langBtn && langPanel){
+    langs.forEach(function(l){
+      var b = document.createElement('button');
+      b.innerHTML = '<span>' + l + '</span><span class="ck">✓</span>';
+      if (l === '简体中文') b.classList.add('on');
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        langPanel.querySelectorAll('button').forEach(function(x){ x.classList.remove('on'); });
+        b.classList.add('on');
+        langName.textContent = l;
+        closeLang();
+      });
+      langPanel.appendChild(b);
+    });
+    function openLang(){
+      var r = langBtn.getBoundingClientRect();
+      langPanel.style.display = 'block';
+      langPanel.style.left = Math.min(r.left, window.innerWidth - 180) + 'px';
+      langPanel.style.top = 'auto';
+      langPanel.style.bottom = (window.innerHeight - r.top + 8) + 'px';
+      requestAnimationFrame(function(){ langPanel.classList.add('open'); });
+    }
+    function closeLang(){
+      langPanel.classList.remove('open');
+      setTimeout(function(){ langPanel.style.display = 'none'; }, 200);
+    }
+    langBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      if (langPanel.classList.contains('open')) closeLang(); else openLang();
+    });
+    document.addEventListener('click', function(){
+      if (langPanel.classList.contains('open')) closeLang();
+    });
+  }
+
+  /* 8) CLI 打字机：进入视口后逐字输入命令 */
+  var cliTyped = document.getElementById('cliTyped');
+  if (cliTyped){
+    var cmd = 'gotoh --align seq.fasta --gap-open -10 --gap-extend -1';
+    var started = false;
+    var tio = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (e.isIntersecting && !started){
+          started = true; tio.disconnect();
+          var i = 0;
+          (function tick(){
+            if (i <= cmd.length){
+              cliTyped.textContent = cmd.slice(0, i);
+              i++;
+              setTimeout(tick, 34 + Math.random()*46);
+            } else {
+              setTimeout(function(){
+                cliTyped.textContent = '';
+                setTimeout(function(){ i = 0; tick(); }, 800);
+              }, 4200);
+            }
+          })();
+        }
+      });
+    }, {threshold:.3});
+    tio.observe(cliTyped.parentElement);
+  }
+
+  /* 9) 移动端菜单 */
+  var burger = document.getElementById('hamburger');
+  var mMenu = document.getElementById('mobileMenu');
+  if (burger && mMenu){
+    burger.addEventListener('click', function(){ mMenu.classList.toggle('open'); });
+    mMenu.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){ mMenu.classList.remove('open'); });
+    });
+  }
+})();
+</script>
+</body>
+</html>
